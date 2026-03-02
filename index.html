@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Question Storage System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --error: #ef4444;
+            --success: #22c55e;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .hidden { display: none !important; }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
+        }
+
+        .change-password-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--border);
+        }
+
+        .change-password-section h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .toggle-link {
+            display: block;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--primary);
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+
+        .secondary-btn:hover {
+            color: var(--error);
+            text-decoration: underline;
+        }
+
+        #message-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background-color: #fef2f2;
+            color: var(--error);
+            border: 1px solid #fee2e2;
+        }
+
+        .success {
+            background-color: #f0fdf4;
+            color: var(--success);
+            border: 1px solid #dcfce7;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dashboard-header h1 {
+            margin-bottom: 0;
+            font-size: 1.25rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Login Screen -->
+        <div id="login-view">
+            <h1>Quiz Question Storage</h1>
+            <div class="form-group">
+                <label for="userId">User ID</label>
+                <input type="text" id="userId" placeholder="Enter your ID">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button id="login-btn">Login</button>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard-view" class="hidden">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <span id="active-category" class="badge">None</span>
+            </div>
+
+            <div class="form-group">
+                <label for="category-select">Category</label>
+                <select id="category-select">
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="SubJunior">SubJunior</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Senior">Senior</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="question-input">Question</label>
+                <textarea id="question-input" placeholder="Enter question text..."></textarea>
+            </div>
+            <button id="add-question-btn" disabled>Add Question</button>
+
+            <div class="change-password-section">
+                <span id="toggle-pw-link" class="toggle-link">Change Password</span>
+                <div id="pw-form" class="hidden" style="margin-top: 1rem;">
+                    <h2>Change Password</h2>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" placeholder="New password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" placeholder="Confirm new password">
+                    </div>
+                    <button id="change-pw-btn">Update Password</button>
+                </div>
+            </div>
+
+            <button id="logout-btn" class="secondary-btn">Logout</button>
+        </div>
+
+        <div id="message-box" class="hidden"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzuxu2CqN5yHfZC5COOq9bfzQ9aMndgRznPvELZzvJv8M3ZQlHH2iSspsCm_bp0nb8I/exec';
+
+        let token = null;
+        let currentCat = null;
+
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const messageBox = document.getElementById('message-box');
+        const activeCategorySpan = document.getElementById('active-category');
+        const addQuestionBtn = document.getElementById('add-question-btn');
+        const questionInput = document.getElementById('question-input');
+        const loginBtn = document.getElementById('login-btn');
+        const categorySelect = document.getElementById('category-select');
+        const changePwBtn = document.getElementById('change-pw-btn');
+        const togglePwLink = document.getElementById('toggle-pw-link');
+        const pwForm = document.getElementById('pw-form');
+
+        function showStatus(msg, isError = false) {
+            messageBox.textContent = msg;
+            messageBox.className = isError ? 'error' : 'success';
+            messageBox.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            messageBox.classList.add('hidden');
+        }
+
+        async function postData(payload) {
+            console.log('Fetching:', API_URL);
+            console.log('Payload:', JSON.stringify(payload, null, 2));
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                console.log('Response:', data);
+
+                if (data.status === 'error' && data.message && data.message.toLowerCase().includes('session expired')) {
+                    handleLogout();
+                    showStatus('Session expired. Please login again.', true);
+                    return null;
+                }
+
+                return data;
+            } catch (err) {
+                console.error('Fetch error:', err);
+                showStatus('Server connection failed. Check console for details.', true);
+                return null;
+            }
+        }
+
+        loginBtn.addEventListener('click', async () => {
+            const userId = document.getElementById('userId').value;
+            const pass = document.getElementById('password').value;
+
+            if (!userId || !pass) {
+                showStatus('User ID and Password are required.', true);
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span>Logging in...';
+            hideStatus();
+
+            const res = await postData({
+                action: 'login',
+                userId: userId,
+                password: pass
+            });
+
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
+
+            if (res && res.status === 'success') {
+                token = res.token;
+                loginView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
+                showStatus('Welcome back!', false);
+            } else if (res) {
+                showStatus(res.message || 'Login failed.', true);
+            }
+        });
+
+        categorySelect.addEventListener('change', async () => {
+            const cat = categorySelect.value;
+            if (!cat) return;
+
+            categorySelect.disabled = true;
+            activeCategorySpan.textContent = 'Setting...';
+            hideStatus();
+
+            const res = await postData({
+                action: 'setCategory',
+                token: token,
+                category: cat
+            });
+
+            categorySelect.disabled = false;
+
+            if (res && res.status === 'success') {
+                currentCat = cat;
+                activeCategorySpan.textContent = cat;
+                addQuestionBtn.disabled = false;
+                showStatus('Category set to ' + cat, false);
+            } else {
+                activeCategorySpan.textContent = currentCat || 'None';
+                if (res) showStatus(res.message || 'Failed to set category.', true);
+            }
+        });
+
+        togglePwLink.addEventListener('click', () => {
+            pwForm.classList.toggle('hidden');
+            togglePwLink.textContent = pwForm.classList.contains('hidden') ? 'Change Password' : 'Cancel Change Password';
+        });
+
+        changePwBtn.addEventListener('click', async () => {
+            const newPw = document.getElementById('new-password').value;
+            const confirmPw = document.getElementById('confirm-password').value;
+
+            if (!newPw) {
+                showStatus('Please enter a new password.', true);
+                return;
+            }
+            if (newPw !== confirmPw) {
+                showStatus('Passwords do not match.', true);
+                return;
+            }
+
+            changePwBtn.disabled = true;
+            changePwBtn.innerHTML = '<span class="loading-spinner"></span>Updating...';
+            hideStatus();
+
+            const res = await postData({
+                action: 'changePassword',
+                token: token,
+                newPassword: newPw
+            });
+
+            changePwBtn.disabled = false;
+            changePwBtn.textContent = 'Update Password';
+
+            if (res && res.status === 'success') {
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+                pwForm.classList.add('hidden');
+                togglePwLink.textContent = 'Change Password';
+                showStatus('Password updated successfully.', false);
+            } else if (res) {
+                showStatus(res.message || 'Failed to update password.', true);
+            }
+        });
+
+        addQuestionBtn.addEventListener('click', async () => {
+            const text = questionInput.value.trim();
+            if (!text) {
+                showStatus('Question text cannot be empty.', true);
+                return;
+            }
+
+            addQuestionBtn.disabled = true;
+            addQuestionBtn.innerHTML = '<span class="loading-spinner"></span>Adding...';
+            hideStatus();
+
+            const res = await postData({
+                action: 'addQuestion',
+                token: token,
+                questionText: text
+            });
+
+            addQuestionBtn.disabled = false;
+            addQuestionBtn.textContent = 'Add Question';
+
+            if (res && res.status === 'success') {
+                questionInput.value = '';
+                showStatus('Question stored successfully.', false);
+            } else if (res) {
+                showStatus(res.message || 'Failed to add question.', true);
+            }
+        });
+
+        function handleLogout() {
+            token = null;
+            currentCat = null;
+            activeCategorySpan.textContent = 'None';
+            addQuestionBtn.disabled = true;
+            questionInput.value = '';
+            document.getElementById('userId').value = '';
+            document.getElementById('password').value = '';
+            
+            // Reset Change Password form
+            if (pwForm) pwForm.classList.add('hidden');
+            if (togglePwLink) togglePwLink.textContent = 'Change Password';
+            if (document.getElementById('new-password')) document.getElementById('new-password').value = '';
+            if (document.getElementById('confirm-password')) document.getElementById('confirm-password').value = '';
+
+            dashboardView.classList.add('hidden');
+            loginView.classList.remove('hidden');
+            hideStatus();
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', handleLogout);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,5 @@
+{
+  "name": "Quiz Question Storage System",
+  "description": "A professional web frontend for a Quiz Question Storage System using a Google Apps Script backend.",
+  "requestFramePermissions": []
+}
