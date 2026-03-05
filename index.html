@@ -315,8 +315,9 @@
         <div id="message-box" class="hidden"></div>
     </div>
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzuxu2CqN5yHfZC5COOq9bfzQ9aMndgRznPvELZzvJv8M3ZQlHH2iSspsCm_bp0nb8I/exec';
+    <script type="module">
+        // Use environment variable from Vite if available, otherwise fallback to hardcoded URL
+        const API_URL = import.meta.env.VITE_API_URL || 'https://script.google.com/macros/s/AKfycbzuxu2CqN5yHfZC5COOq9bfzQ9aMndgRznPvELZzvJv8M3ZQlHH2iSspsCm_bp0nb8I/exec';
 
         let token = null;
         let currentCat = null;
@@ -344,8 +345,10 @@
         }
 
         async function postData(payload) {
-            console.log('Fetching:', API_URL);
-            console.log('Payload:', JSON.stringify(payload, null, 2));
+            if (import.meta.env.DEV) {
+                console.log('Fetching:', API_URL);
+                console.log('Payload:', JSON.stringify(payload, null, 2));
+            }
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -356,7 +359,9 @@
                 });
 
                 const data = await response.json();
-                console.log('Response:', data);
+                if (import.meta.env.DEV) {
+                    console.log('Response:', data);
+                }
 
                 if (data.status === 'error' && data.message && data.message.toLowerCase().includes('session expired')) {
                     handleLogout();
